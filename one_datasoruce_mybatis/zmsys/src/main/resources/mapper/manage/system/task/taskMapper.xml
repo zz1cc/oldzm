@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.platform.yw.manage.dao.system.task.TaskDao">
+
+    <select id="getObjectListByPage" parameterType="java.lang.String" resultType="Task">
+        select * from sys_task
+        <if test="status!=null and status!=''">
+            where status = #{status}
+        </if>
+    </select>
+
+    <select id="getObjectById" parameterType="long" resultType="Task">
+        select * from sys_task where id = #{id}
+    </select>
+
+    <insert id="saveObject" parameterType="Task" useGeneratedKeys="true" keyProperty="entity.id">
+        insert into sys_task
+        (name,cron_expression,invoke_name,status,concurrent,group_name,remarks,
+        create_time,modify_time,create_user,modify_user)
+        values
+        (#{entity.name},#{entity.cronExpression},#{entity.invokeName},#{entity.status},
+        #{entity.concurrent},#{entity.groupName},#{entity.remarks},
+        now(),now(),#{entity.createUser},#{entity.modifyUser})
+    </insert>
+
+    <update id="updateObject" parameterType="Task">
+        update sys_task set
+        <if test="entity.name!=null and entity.name!=''">
+            name=#{entity.name},
+        </if>
+        <if test="entity.cronExpression!=null and entity.cronExpression!=''">
+            cron_expression=#{entity.cronExpression},
+        </if>
+        <if test="entity.invokeName!=null and entity.invokeName!=''">
+            invoke_name=#{entity.invokeName},
+        </if>
+        <if test="entity.status!=null and entity.status!=''">
+            status=#{entity.status},
+        </if>
+        <if test="entity.concurrent==0 or entity.concurrent==1">
+            concurrent=#{entity.concurrent},
+        </if>
+        <if test="entity.groupName!=null and entity.groupName!=''">
+            group_name=#{entity.groupName},
+        </if>
+        <if test="entity.remarks!=null or entity.remarks!=''">
+            remarks=#{entity.remarks},
+        </if>
+        <if test="entity.modifyUser!=null and entity.modifyUser!=''">
+            modify_user=#{entity.modifyUser},
+        </if>
+        modify_time=now()
+        where id=#{entity.id}
+    </update>
+
+    <delete id="deleteObjectByIds" parameterType="string">
+        delete from sys_task where id in
+        <foreach item="item" collection="array" separator="," open="(" close=")" index="">
+            #{item}
+        </foreach>
+    </delete>
+
+</mapper>

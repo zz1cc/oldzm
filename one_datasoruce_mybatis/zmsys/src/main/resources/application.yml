@@ -1,0 +1,100 @@
+server:
+  port: 8090
+  servlet:
+    context-path: /zmsys
+
+# 自定义静态资源映射 访问 /zmsys/uploadFiles/photo/1.jpg 会被映射到 F:/uploadFiles/photo/1.jpg
+upload:
+  resourceHandler: /uploadFiles/**   #请求 url 中的资源映射
+  location: F:/uploadFiles/ #自定义上传文件本地保存路径
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/zmsys?useSSL=false&useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+    username: root
+    password: root
+    # 	 mysql低版本驱动名称
+    # driver-class-name: com.mysql.jdbc.Driver
+    # 	 mysql高版本驱动名称
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    ###################以下为druid增加的配置###########################
+    type: com.alibaba.druid.pool.DruidDataSource
+    # 下面为连接池的补充设置，应用到上面所有数据源中
+    # 初始化大小，最小，最大
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+    # 配置获取连接等待超时的时间
+    maxWait: 60000
+    # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+    timeBetweenEvictionRunsMillis: 60000
+    # 配置一个连接在池中最小生存的时间，单位是毫秒
+    minEvictableIdleTimeMillis: 300000
+    # 用来检测连接是否有效的sql，要求是一个查询语句
+    ValidationQuery: select 1
+    # 执行上面的查询语句检测连接是否有效
+    testWhileIdle: true
+    # 获取连接时执行validationQuery检测连接是否有效
+    testOnBorrow: false
+    # 归还连接时执行validationQuery检测连接是否有效
+    testOnReturn: false
+    #是否开启PSCache，PSCache对支持游标的数据库性能提升巨大，oracle建议开启，mysql下建议关闭
+    poolPreparedStatements: false
+    maxPoolPreparedStatementPerConnectionSize: 20
+    #配置扩展插件，常用的插件有=>stat:监控统计  log4j:日志  wall:防御sql注入
+    filters: stat,wall,log4j2
+    # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+    # 合并多个DruidDataSource的监控数据
+    useGlobalDataSourceStat: true
+    ###############以上为配置druid添加的配置########################################
+  # redis
+  redis:
+    # redis数据库索引（默认为0）
+    database: 0
+    # redis服务器地址
+    host: localhost
+    # redis服务器连接端口
+    port: 6379
+    # redis服务器连接密码（默认为空）
+    password:
+    # 连接池最大连接数（使用负值表示没有限制）
+    pool.max-active: 200
+    # 连接池最大阻塞等待时间（使用负值表示没有限制）
+    max-wait: 28800
+    # 连接池中的最大空闲连接
+    max-idle: 10
+    # 连接池中的最小空闲连接
+    min-idle: 0
+    # 连接超时时间（毫秒）
+    timeout: 1000
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+  #是否自动打开默认浏览器
+  auto:
+    openurl: false
+  #热部署
+  devtools:
+    restart:
+      enabled: true  #设置开启热部署
+
+# mapper.xml目录
+mybatis:
+  # 多个目录逗号分隔
+  type-aliases-package: com.zm.platform.yw.manage.entity
+  mapper-locations: classpath*:mapper/*/**/*.xml
+  configuration:
+    #使用jdbc的getGeneratekeys获取自增主键值
+    use-generated-keys: true
+    #开启mybatis缓存策略
+    cache-enabled: false
+    #开启驼峰命名转换       如数据库  user_name  对应实体  userName
+    map-underscore-to-camel-case: true
+
+logging:
+  # 默认名log4j2-spring.xml,config属性可以自定义文件名
+  config: classpath:log4j2.xml
+  # 打印sql语句（可以指定只打印某个包下的sql语句）

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.platform.yw.manage.dao.system.MenuDao">
+
+	<!-- 查询所有 -->
+	<select id="getObjectList" resultType="Menu">
+		select
+			m.*
+		from
+			sysmenu m
+  		order by IF(ISNULL(sort),1,0),sort
+	</select>
+	
+	<!-- 根据id查询菜单信息 -->
+	<select id="getObjectById" resultType="Menu">
+		select 
+			m.name,
+			m.url,
+			m.type,
+			m.sort,
+			m.parentId,
+			m.permission,
+			m.component,
+			(select p.name from sysmenu p where p.id = m.parentId) as parentName
+		from 
+			sysmenu m
+		where
+			m.id = #{id}
+	</select>
+	
+	<!-- 根据角色id查询菜单信息 -->
+	<select id="getObjectByRoleIds" parameterType="string" resultType="Menu">
+		select * from sysmenu where id in
+			(select menu_id from sys_role_menu where role_id in
+		  		<foreach item="item" collection="array" separator="," open="(" close=")" index="">
+					#{item}
+				</foreach>
+			)
+  		order by IF(ISNULL(sort),1,0),sort
+	</select>
+	
+	<!-- 保存 -->
+	<insert id="saveObject" parameterType="Menu" keyProperty="entity.id" useGeneratedKeys="true">
+		insert into
+			sysmenu(name,url,type,component,icon,sort,note,parent_id,permission,create_time,modify_time,
+			create_user,modify_user,is_jump_link)
+		values
+			(#{entity.name},#{entity.url},#{entity.type},#{entity.component},#{entity.icon},#{entity.sort},
+			#{entity.note},#{entity.parentId},#{entity.permission},NOW(),NOW(),
+			#{entity.createUser},#{entity.modifyUser},#{entity.isJumpLink})
+	</insert>
+	
+	<!-- 更新菜单 -->
+	<update id="updateObject" parameterType="Menu">
+		update
+			sysmenu
+		set
+			name= #{entity.name},
+			url = #{entity.url},
+			type = #{entity.type},
+			component = #{entity.component},
+			icon = #{entity.icon},
+			sort = #{entity.sort},
+			note = #{entity.note},
+			parent_id = #{entity.parentId},
+			permission = #{entity.permission},
+			modify_time = NOW(),
+			modify_user = #{entity.modifyUser},
+			is_jump_link = #{entity.isJumpLink}
+		where
+			id = #{entity.id}
+	</update>
+	
+	<!-- 删除菜单 -->
+  	<delete id="deleteObjectByIds" parameterType="string">
+		delete from sysmenu where id in
+  		<foreach item="item" collection="array" separator="," open="(" close=")" index="">
+			#{item}
+		</foreach>
+  	</delete>
+</mapper>

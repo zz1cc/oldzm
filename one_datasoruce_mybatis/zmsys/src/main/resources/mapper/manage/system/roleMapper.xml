@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.platform.yw.manage.dao.system.RoleDao">
+
+	<!-- 查询所有带分页 -->
+	<select id="getObjectListByPage" parameterType="map" resultMap="selectRoleMenu">
+		select * from sysrole
+	  	<where>
+			<if test="valid==0 or valid==1">
+		         and valid = #{valid}
+		    </if>
+	  	</where>
+  		order by IF(ISNULL(sort),1,0),sort
+	</select>
+
+	<resultMap type="Role" id="selectRoleMenu">
+		<id property="id" column="id"></id>
+		<id property="name" column="name"></id>
+		<id property="sort" column="sort"></id>
+		<id property="valid" column="valid"></id>
+		<id property="note" column="note"></id>
+		<id property="createUser" column="create_user"></id>
+		<id property="createUser" column="create_user"></id>
+		<id property="createTime" column="create_time"></id>
+		<id property="modifyTime" column="modify_time"></id>
+		<!-- column:子查询的参数  {id=id} -->
+		<collection property="menuList" ofType="Menu" select="getMenuListByRoleId" column="id">
+			<id property="id" column="id"></id>
+		</collection>
+	</resultMap>
+	
+	<select id="getMenuListByRoleId" parameterType="Long" resultType="Menu">
+		select t1.*,t2.halfcheck 
+		from sysmenu t1, sys_role_menu t2 
+		where t1.id=t2.menu_id
+		and t2.role_id=#{id}
+	</select>
+	
+	<!-- 根据id查询角色信息 -->
+	<select id="getObjectById" resultMap="selectRoleMenu" parameterType="Long" >
+		select * from sysrole m where m.id = #{id}
+	</select>
+	
+	<!-- 保存 -->
+	<insert id="saveObject" parameterType="Role" useGeneratedKeys="true" keyProperty="entity.id">
+		insert into
+			sysrole(name,note,sort,valid,create_time,modify_time,create_user,modify_user)
+		values
+			(#{entity.name},#{entity.note},#{entity.sort},#{entity.valid},NOW(),NOW(),
+			#{entity.createUser},#{entity.modifyUser})
+	</insert>
+	
+	<!-- 更新 -->
+	<update id="updateObject" parameterType="Role">
+		update
+			sysrole
+		set
+			name = #{entity.name},
+			note = #{entity.note},
+			sort = #{entity.sort},
+			valid = #{entity.valid},
+			modify_time = NOW(),
+			modify_user = #{entity.modifyUser}
+		where
+			id = #{entity.id}
+	</update>
+	
+	<!-- 删除 -->
+  	<delete id="deleteObjectByIds" parameterType="string">
+		delete from sysrole where id in
+  		<foreach item="item" collection="array" separator="," open="(" close=")" index="">
+			#{item}
+		</foreach>
+  	</delete>
+</mapper>
